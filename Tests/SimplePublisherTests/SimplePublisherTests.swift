@@ -20,7 +20,6 @@ struct Emitter: SimplePublisher {
     }
     
     mutating func stop() {
-        coordinator.complete()
         timer?.invalidate()
         self.timer = nil
     }
