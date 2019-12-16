@@ -2,14 +2,14 @@ import Foundation
 import Combine
 import Synchronized
 
-final class SimpleCoordinator<Output, Failure: Error>: Publisher, Synchronized {
+public final class SimpleCoordinator<Output, Failure: Error>: Publisher, Synchronized {
     var subscriptions: [SimpleSubscription<Output, Failure>] = []
     var isComplete = false
     var isIncomplete: Bool { return !isComplete }
     
-    init() {}
+    public init() {}
     
-    func receive<S>(subscriber: S) where S : Subscriber, Failure == S.Failure, Output == S.Input {
+    public func receive<S>(subscriber: S) where S : Subscriber, Failure == S.Failure, Output == S.Input {
         sync {
             guard isIncomplete else { return }
         }
@@ -22,7 +22,7 @@ final class SimpleCoordinator<Output, Failure: Error>: Publisher, Synchronized {
         }
     }
     
-    func receive(_ output: Output) {
+    public func receive(_ output: Output) {
         sync {
             guard isIncomplete else { return }
             
@@ -32,15 +32,15 @@ final class SimpleCoordinator<Output, Failure: Error>: Publisher, Synchronized {
         }
     }
     
-    func complete() {
+    public func complete() {
         complete(.finished)
     }
     
-    func complete(_ failure: Failure) {
+    public func complete(_ failure: Failure) {
         complete(.failure(failure))
     }
     
-    func complete(_ completion: Subscribers.Completion<Failure>) {
+    public func complete(_ completion: Subscribers.Completion<Failure>) {
         sync {
             guard isIncomplete else { return }
             

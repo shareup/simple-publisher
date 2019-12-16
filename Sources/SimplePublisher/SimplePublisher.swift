@@ -1,7 +1,7 @@
 import Foundation
 import Combine
 
-protocol SimplePublisher: Publisher {
+public protocol SimplePublisher: Publisher {
     var coordinator: SimpleCoordinator<Output, Failure> { get }
 }
 
