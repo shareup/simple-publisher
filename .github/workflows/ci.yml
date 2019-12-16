@@ -2,7 +2,7 @@ name: ci
 on: push
 jobs:
   test:
-    runs-on: macOS-10.15
+    runs-on: macOS-10.14
     steps:
       - uses: actions/checkout@v1
       - name: Switch Xcode to 11.3
