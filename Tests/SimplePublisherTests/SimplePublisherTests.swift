@@ -106,7 +106,8 @@ final class SimplePublisherTests: XCTestCase {
         let sink1Ex = expectation(description: "Sink1 should get 1 string only")
         let sink2Ex = expectation(description: "Sink2 should get 1 string only")
         let forever1Ex = expectation(description: "Forever1 should get 1 string only in about 2 seconds")
-        let forever2Ex = expectation(description: "Forever2 should get 1 string only since it starts late and shouldn't get historical items")
+        let forever2Ex = expectation(description: "Forever2 should get 2 strings in about 4 seconds (not 3) since it starts late and shouldn't get historical items")
+        forever2Ex.expectedFulfillmentCount = 2
         
         let sub1 = emitter.sink { _ in
             sink1Ex.fulfill()
@@ -131,6 +132,6 @@ final class SimplePublisherTests: XCTestCase {
         }
         defer { sub4.cancel() }
         
-        waitForExpectations(timeout: 2.1)
+        waitForExpectations(timeout: 4.1)
     }
 }
