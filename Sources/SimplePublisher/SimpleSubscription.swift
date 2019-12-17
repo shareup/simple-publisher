@@ -2,7 +2,7 @@ import Foundation
 import Combine
 import Synchronized
 
-class SimpleSubscription<Item, Failure: Error>: Subscription, Synchronized {
+public class SimpleSubscription<Item, Failure: Error>: Subscription, Synchronized {
     var publisher: AnyPublisher<Item, Failure>?
     var subscriber: AnySubscriber<Item, Failure>?
     var demand: Subscribers.Demand?
@@ -31,7 +31,7 @@ class SimpleSubscription<Item, Failure: Error>: Subscription, Synchronized {
         }
     }
     
-    func request(_ newDemand: Subscribers.Demand) {
+    public func request(_ newDemand: Subscribers.Demand) {
         sync {
             guard let previousDemand = self.demand else {
                 self.demand = newDemand
@@ -42,7 +42,7 @@ class SimpleSubscription<Item, Failure: Error>: Subscription, Synchronized {
         }
     }
     
-    func cancel() {
+    public func cancel() {
         sync {
             self.publisher = nil
             self.subscriber = nil

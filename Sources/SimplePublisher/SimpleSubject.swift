@@ -17,14 +17,12 @@ public class SimpleSubject<Output, Failure>: Publisher, Synchronized where Failu
             
             let subscription = SimpleSubscription(publisher: self, subscriber: subscriber)
             
-            sync {
-                subscriptions.append(subscription)
-            }
+            send(subscription: subscription)
             
             subscriber.receive(subscription: subscription)
     }
     
-    public func publish(_ output: Output) {
+    public func send(_ output: Output) {
         sync {
             guard isIncomplete else { return }
             
@@ -34,15 +32,13 @@ public class SimpleSubject<Output, Failure>: Publisher, Synchronized where Failu
         }
     }
     
-    public func complete() {
-        complete(.finished)
+    public func send(subscription: SimpleSubscription<Output, Failure>) {
+        sync {
+            subscriptions.append(subscription)
+        }
     }
-    
-    public func complete(_ failure: Failure) {
-        complete(.failure(failure))
-    }
-    
-    public func complete(_ completion: Subscribers.Completion<Failure>) {
+
+    public func send(completion: Subscribers.Completion<Failure>) {
         sync {
             guard isIncomplete else { return }
             
@@ -58,5 +54,11 @@ public class SimpleSubject<Output, Failure>: Publisher, Synchronized where Failu
     
     deinit {
         subscriptions.removeAll()
+    }
+}
+
+extension SimpleSubject where SimpleSubject.Output == Void {
+    public func send() {
+        send(())
     }
 }

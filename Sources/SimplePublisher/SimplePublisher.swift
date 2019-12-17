@@ -16,18 +16,18 @@ extension SimplePublisher {
     }
     
     public func publish(_ output: Output) {
-        subject.publish(output)
+        subject.send(output)
     }
     
     public func complete() {
-        subject.complete()
+        complete(.finished)
     }
     
     public func complete(_ failure: Failure) {
-        subject.complete(failure)
+        complete(.failure(failure))
     }
     
     public func complete(_ completion: Subscribers.Completion<Failure>) {
-        subject.complete(completion)
+        subject.send(completion: completion)
     }
 }
