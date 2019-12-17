@@ -2,7 +2,7 @@ import Foundation
 import Combine
 import Synchronized
 
-final class SimpleSubscription<Item, Failure: Error>: Subscription, Synchronized {
+class SimpleSubscription<Item, Failure: Error>: Subscription, Synchronized {
     var publisher: AnyPublisher<Item, Failure>?
     var subscriber: AnySubscriber<Item, Failure>?
     var demand: Subscribers.Demand?
