@@ -2,13 +2,15 @@ import Foundation
 import Combine
 import Synchronized
 
-public class SimplePublisher<Output, Failure: Error>: Publisher, Synchronized {
+open class SimplePublisher<Output, Failure: Error>: Publisher, Synchronized {
     public typealias Output = Output
     public typealias Failure = Failure
     
     var subscriptions: [SimpleSubscription<Output, Failure>] = []
     var isComplete = false
     var isIncomplete: Bool { return !isComplete }
+    
+    public init() {}
     
     public func receive<S>(subscriber: S)
         where S: Subscriber, Failure == S.Failure, Output == S.Input {
@@ -24,7 +26,7 @@ public class SimplePublisher<Output, Failure: Error>: Publisher, Synchronized {
         }
     }
     
-    func publish(_ output: Output) {
+    open func publish(_ output: Output) {
         sync {
             guard isIncomplete else { return }
             
@@ -34,15 +36,15 @@ public class SimplePublisher<Output, Failure: Error>: Publisher, Synchronized {
         }
     }
     
-    func complete() {
+    open func complete() {
         complete(.finished)
     }
     
-    func complete(_ failure: Failure) {
+    open func complete(_ failure: Failure) {
         complete(.failure(failure))
     }
     
-    func complete(_ completion: Subscribers.Completion<Failure>) {
+    open func complete(_ completion: Subscribers.Completion<Failure>) {
         sync {
             guard isIncomplete else { return }
             
