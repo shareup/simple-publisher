@@ -8,7 +8,7 @@ Very quickly give your class the ability to publish out to subscribers by subcla
 // swift-tools-version:5.1
 // platforms: [.macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v5),],
 
-.package(url: "https://github.com/shareup/simple-publisher.git", .upToNextMajor(from: "1.0.0")),
+.package(url: "https://github.com/shareup/simple-publisher.git", .upToNextMajor(from: "1.1.0")),
 ```
 
 ## A full usage example
