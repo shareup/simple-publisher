@@ -21,8 +21,7 @@ class Emitter {
     
     func start() {
         guard timer == nil else { return }
-        let timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true, block: trigger(_:))
-        self.timer = timer
+        self.timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true, block: trigger(_:))
     }
     
     private func trigger(_ timer: Timer) {
@@ -90,8 +89,7 @@ struct Emitter: SimplePublisher<String, Never> {
     
     func start() {
         guard timer == nil else { return }
-        let timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true, block: trigger(_:))
-        self.timer = timer
+        self.timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true, block: trigger(_:))
     }
     
     private func trigger(_ timer: Timer) {
