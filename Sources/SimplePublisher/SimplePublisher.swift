@@ -1,65 +1,33 @@
-import Foundation
 import Combine
-import Synchronized
 
-open class SimplePublisher<Output, Failure: Error>: Publisher, Synchronized {
-    public typealias Output = Output
-    public typealias Failure = Failure
+public protocol SimplePublisher: Publisher {
+    var subject: SimpleSubject<Output, Failure> { get }
     
-    var subscriptions: [SimpleSubscription<Output, Failure>] = []
-    var isComplete = false
-    var isIncomplete: Bool { return !isComplete }
-    
-    public init() {}
-    
+    func publish(_ output: Output)
+    func complete()
+    func complete(_ failure: Failure)
+    func complete(_ completion: Subscribers.Completion<Failure>)
+}
+
+extension SimplePublisher {
     public func receive<S>(subscriber: S)
         where S: Subscriber, Failure == S.Failure, Output == S.Input {
-            sync {
-                guard isIncomplete else { return }
-            }
-            
-            let subscription = SimpleSubscription(publisher: self, subscriber: subscriber)
-            
-            sync {
-                subscriptions.append(subscription)
-            }
-            
-            subscriber.receive(subscription: subscription)
+            subject.receive(subscriber: subscriber)
     }
     
-    open func publish(_ output: Output) {
-        sync {
-            guard isIncomplete else { return }
-            
-            for subscription in subscriptions {
-                subscription.receive(output)
-            }
-        }
+    public func publish(_ output: Output) {
+        subject.publish(output)
     }
     
-    open func complete() {
-        complete(.finished)
+    public func complete() {
+        subject.complete()
     }
     
-    open func complete(_ failure: Failure) {
-        complete(.failure(failure))
+    public func complete(_ failure: Failure) {
+        subject.complete(failure)
     }
     
-    open func complete(_ completion: Subscribers.Completion<Failure>) {
-        sync {
-            guard isIncomplete else { return }
-            
-            for subscription in subscriptions {
-                subscription.receive(completion: completion)
-            }
-            
-            subscriptions.removeAll()
-            
-            self.isComplete = true
-        }
-    }
-    
-    deinit {
-        subscriptions.removeAll()
+    public func complete(_ completion: Subscribers.Completion<Failure>) {
+        subject.complete(completion)
     }
 }

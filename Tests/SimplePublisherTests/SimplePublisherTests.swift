@@ -2,7 +2,11 @@ import XCTest
 @testable import SimplePublisher
 import Forever
 
-class Emitter: SimplePublisher<String, Never> {
+class Emitter: SimplePublisher {
+    typealias Output = String
+    typealias Failure = Never
+    var subject = SimpleSubject<Output, Failure>()
+    
     var timer: Timer?
     
     func start() {

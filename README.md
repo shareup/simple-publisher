@@ -1,6 +1,6 @@
 # SimplePublisher for Combine
 
-Very quickly give your class the ability to publish out to subscribers by subclassing SimplePublisher.
+Very quickly give your struct or class the ability to publish out to subscribers by conforming to SimplePublisher.
 
 ## Installation
 
@@ -42,7 +42,11 @@ class Emitter {
 one can turn it into a `SimplePublisher` by subclassing:
 
 ```swift
-struct Emitter: SimplePublisher<String, Never> {
+struct Emitter: SimplePublisher {
+    typealias Output = String
+    typealias Failure = Never
+    var subject = SimpleSubject<Output, Failure>()
+    
     // ...
     
     private func trigger(_ timer: Timer) {
@@ -57,7 +61,7 @@ The main concepts to know are:
 
 * Publishers must indicate what the `Output` type is – what are you going to publish out for subscribers to receive?
 * Publishers must indicate the type for `Failure` – what type of `Error` are you going to emit to subscribers when something goes wrong?
-* ⭐️ no need to worry about bookeeping or any of that
+* Setup a `SimpleSubject` which takes care of all the `Subscriber` and `Subscription` bookeeping ⭐️
 
 ### Subscribing
 
@@ -84,7 +88,11 @@ See the [tests in this repo](https://github.com/shareup/simple-publisher/blob/ma
 ### Full example all together
 
 ```swift
-struct Emitter: SimplePublisher<String, Never> {
+class Emitter: SimplePublisher {
+    typealias Output = String
+    typealias Failure = Never
+    var subject = SimpleSubject<Output, Failure>()
+    
     var timer: Timer?
     
     func start() {
@@ -99,6 +107,10 @@ struct Emitter: SimplePublisher<String, Never> {
     func stop() {
         timer?.invalidate()
         self.timer = nil
+    }
+    
+    deinit {
+        stop()
     }
 }
 
