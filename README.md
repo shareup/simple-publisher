@@ -39,7 +39,7 @@ class Emitter {
 }
 ```
 
-one can turn it into a `SimplePublisher` by conforming to the protocol:
+one can turn it into a `SimplePublisher` by subclassing:
 
 ```swift
 struct Emitter: SimplePublisher<String, Never> {
@@ -57,7 +57,7 @@ The main concepts to know are:
 
 * Publishers must indicate what the `Output` type is – what are you going to publish out for subscribers to receive?
 * Publishers must indicate the type for `Failure` – what type of `Error` are you going to emit to subscribers when something goes wrong?
-* ⭐️ no need to worry about bookeeping or anything of that
+* ⭐️ no need to worry about bookeeping or any of that
 
 ### Subscribing
 
