@@ -1,11 +1,12 @@
 import XCTest
 @testable import SimplePublisher
+import Combine
 import Forever
 
 struct Emitter: SimplePublisher {
     typealias Output = String
     typealias Failure = Never
-    var coordinator = SimpleCoordinator<Output, Failure>()
+    var coordinator = PassthroughSubject<Output, Failure>()
     var timer: Timer?
     
     mutating func start() {
@@ -16,7 +17,7 @@ struct Emitter: SimplePublisher {
     }
     
     private func trigger(_ timer: Timer) {
-        coordinator.receive(UUID().uuidString)
+        coordinator.send(UUID().uuidString)
     }
     
     mutating func stop() {
@@ -39,6 +40,21 @@ final class SimplePublisherTests: XCTestCase {
         defer { sub.cancel() }
         
         waitForExpectations(timeout: 2.1)
+    }
+    
+    func testEmitterSinksProperly() {
+        var emitter = Emitter()
+        emitter.start()
+        defer { emitter.stop() }
+        
+        let ex = expectation(description: "Should get only one string in about 6 seconds")
+
+        let sub = emitter.sink { string in
+            ex.fulfill()
+        }
+        defer { sub.cancel() }
+        
+        waitForExpectations(timeout: 6.1)
     }
     
     func testEmitterEmitsTwice() {
@@ -78,17 +94,17 @@ final class SimplePublisherTests: XCTestCase {
         emitter.start()
         defer { emitter.stop() }
         
-        let sinkEx = expectation(description: "Sink should get 1 string only")
         let foreverEx = expectation(description: "Forever should get 2 strings in about 4 seconds")
         foreverEx.expectedFulfillmentCount = 2
+        let sinkEx = expectation(description: "Sink should get 1 string only")
         
-        let sub1 = emitter.sink { string in
-            sinkEx.fulfill()
+        let sub1 = emitter.forever { string in
+            foreverEx.fulfill()
         }
         defer { sub1.cancel() }
         
-        let sub2 = emitter.forever { string in
-            foreverEx.fulfill()
+        let sub2 = emitter.sink { string in
+            sinkEx.fulfill()
         }
         defer { sub2.cancel() }
         
