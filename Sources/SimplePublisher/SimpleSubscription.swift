@@ -7,9 +7,9 @@ final class SimpleSubscription<Item, Failure: Error>: Subscription, Synchronized
     var subscriber: AnySubscriber<Item, Failure>?
     var demand: Subscribers.Demand?
     
-    init(publisher: AnyPublisher<Item, Failure>, subscriber: AnySubscriber<Item, Failure>) {
-        self.publisher = publisher
-        self.subscriber = subscriber
+    init<P, S>(publisher: P, subscriber: S) where S: Subscriber, Failure == S.Failure, Item == S.Input, P: Publisher, Failure == P.Failure, Item == P.Output {
+        self.publisher = AnyPublisher(publisher)
+        self.subscriber = AnySubscriber(subscriber)
     }
     
     func receive(_ item: Item) {
@@ -38,11 +38,7 @@ final class SimpleSubscription<Item, Failure: Error>: Subscription, Synchronized
                 return
             }
 
-            if newDemand == 0 {
-                self.demand = newDemand
-            } else {
-                self.demand = previousDemand + newDemand
-            }
+            self.demand = previousDemand + newDemand
         }
     }
     

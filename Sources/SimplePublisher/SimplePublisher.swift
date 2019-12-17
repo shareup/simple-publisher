@@ -14,16 +14,17 @@ open class SimplePublisher<Output, Failure: Error>: Publisher, Synchronized {
     
     public func receive<S>(subscriber: S)
         where S: Subscriber, Failure == S.Failure, Output == S.Input {
-        sync {
-            guard isIncomplete else { return }
-        }
-        
-        let subscription = SimpleSubscription(publisher: self.eraseToAnyPublisher(), subscriber: AnySubscriber(subscriber))
-        subscriber.receive(subscription: subscription)
-        
-        sync {
-            subscriptions.append(subscription)
-        }
+            sync {
+                guard isIncomplete else { return }
+            }
+            
+            let subscription = SimpleSubscription(publisher: self, subscriber: subscriber)
+            
+            sync {
+                subscriptions.append(subscription)
+            }
+            
+            subscriber.receive(subscription: subscription)
     }
     
     open func publish(_ output: Output) {
