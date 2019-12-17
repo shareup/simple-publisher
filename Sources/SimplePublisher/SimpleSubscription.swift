@@ -19,12 +19,7 @@ final class SimpleSubscription<Item, Failure: Error>: Subscription, Synchronized
             guard let subscriber = subscriber else { return }
             
             let newDemand = subscriber.receive(item)
-            
-            if newDemand == 0 {
-                self.demand = newDemand
-            } else {
-                self.demand = newDemand + demand - 1
-            }
+            self.demand = newDemand
         }
     }
     
