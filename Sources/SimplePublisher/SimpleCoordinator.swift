@@ -2,7 +2,7 @@ import Foundation
 import Combine
 import Synchronized
 
-public final class SimpleCoordinator<Output, Failure: Error>: Publisher, Synchronized {
+final class SimpleCoordinator<Output, Failure: Error>: Publisher, Synchronized {
     var subscriptions: [SimpleSubscription<Output, Failure>] = []
     var isComplete = false
     var isIncomplete: Bool { return !isComplete }

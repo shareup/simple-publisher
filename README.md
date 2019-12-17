@@ -1,28 +1,14 @@
 # SimplePublisher for Combine
 
-Very quickly give your struct or class the ability to publish out to subscribers.
+Very quickly give your class the ability to publish out to subscribers by subclassing SimplePublisher.
 
 ## Installation
 
 ```swift
-.package(url: "https://github.com/shareup/simple-publisher.git", .upToNextMajor(from: "1.0.0")),
-```
-
-or with more details about platforms and swift tools needed:
-
-```swift
 // swift-tools-version:5.1
+// platforms: [.macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v5),],
 
-import PackageDescription
-
-let package = Package(
-    platforms: [
-        .macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v5),
-    ],
-    dependencies: [
-        .package(url: "https://github.com/shareup/simple-publisher.git", .upToNextMajor(from: "1.0.0")),
-    ],
-)
+.package(url: "https://github.com/shareup/simple-publisher.git", .upToNextMajor(from: "1.0.0")),
 ```
 
 ## A full usage example
@@ -30,12 +16,11 @@ let package = Package(
 Assuming one has a very simple periodic emitter: 
 
 ```swift
-struct Emitter {
+class Emitter {
     var timer: Timer?
     
-    mutating func start() {
+    func start() {
         guard timer == nil else { return }
-        
         let timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true, block: trigger(_:))
         self.timer = timer
     }
@@ -44,9 +29,13 @@ struct Emitter {
         print("💡 \(UUID().uuidString)")
     }
     
-    mutating func stop() {
+    func stop() {
         timer?.invalidate()
         self.timer = nil
+    }
+    
+    deinit {
+        stop()
     }
 }
 ```
@@ -54,22 +43,22 @@ struct Emitter {
 one can turn it into a `SimplePublisher` by conforming to the protocol:
 
 ```swift
-struct Emitter: SimplePublisher {
-    typealias Output = String
-    typealias Failure = Never
-    var coordinator = SimpleCoordinator<Output, Failure>()
+struct Emitter: SimplePublisher<String, Never> {
+    // ...
     
     private func trigger(_ timer: Timer) {
-        coordinator.receive(UUID().uuidString)
+        publish(UUID().uuidString)
     }
+    
+    // ...
 }
 ```
 
 The main concepts to know are:
 
 * Publishers must indicate what the `Output` type is – what are you going to publish out for subscribers to receive?
-* Publisher must indicate the type for `Failure` – what type of `Error` are you going to emit to subscribers when something goes wrong?
-* `SimplePublisher` needs one to setup a `SimpleCoordinator` which takes care of managing `Subscriber`s and `Subscription`s and all the bookeeping – ⭐️ no need to worry about it
+* Publishers must indicate the type for `Failure` – what type of `Error` are you going to emit to subscribers when something goes wrong?
+* ⭐️ no need to worry about bookeeping or anything of that
 
 ### Subscribing
 
@@ -96,24 +85,20 @@ See the [tests in this repo](https://github.com/shareup/simple-publisher/blob/ma
 ### Full example all together
 
 ```swift
-struct Emitter: SimplePublisher {
+struct Emitter: SimplePublisher<String, Never> {
     var timer: Timer?
-    typealias Output = String
-    typealias Failure = Never
-    var coordinator = SimpleCoordinator<Output, Failure>()
     
-    mutating func start() {
+    func start() {
         guard timer == nil else { return }
-        
         let timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true, block: trigger(_:))
         self.timer = timer
     }
     
     private func trigger(_ timer: Timer) {
-        coordinator.receive(UUID().uuidString)
+        publish(UUID().uuidString)
     }
     
-    mutating func stop() {
+    func stop() {
         timer?.invalidate()
         self.timer = nil
     }

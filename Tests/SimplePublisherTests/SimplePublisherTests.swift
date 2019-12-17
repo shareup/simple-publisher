@@ -2,13 +2,10 @@ import XCTest
 @testable import SimplePublisher
 import Forever
 
-struct Emitter: SimplePublisher {
-    typealias Output = String
-    typealias Failure = Never
-    var coordinator = SimpleCoordinator<Output, Failure>()
+class Emitter: SimplePublisher<String, Never> {
     var timer: Timer?
     
-    mutating func start() {
+    func start() {
         guard timer == nil else { return }
         
         let timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true, block: trigger(_:))
@@ -16,12 +13,16 @@ struct Emitter: SimplePublisher {
     }
     
     private func trigger(_ timer: Timer) {
-        coordinator.receive(UUID().uuidString)
+        publish(UUID().uuidString)
     }
     
-    mutating func stop() {
+    func stop() {
         timer?.invalidate()
         self.timer = nil
+    }
+    
+    deinit {
+        stop()
     }
 }
 
