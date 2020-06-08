@@ -11,9 +11,8 @@ public class SimpleSubject<Output, Failure>: Publisher, Synchronized where Failu
     
     public func receive<S>(subscriber: S)
         where S: Subscriber, Failure == S.Failure, Output == S.Input {
-            sync {
-                guard isIncomplete else { return }
-            }
+            let isIncomplete = sync { return self.isIncomplete }
+            guard isIncomplete else { return }
             
             let subscription = SimpleSubscription(publisher: self, subscriber: subscriber)
             
