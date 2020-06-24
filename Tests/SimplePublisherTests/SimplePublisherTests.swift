@@ -1,13 +1,20 @@
 import XCTest
-@testable import SimplePublisher
+import Combine
 import Forever
+@testable import SimplePublisher
 
-class Emitter: SimplePublisher {
+#if true // Use PassthroughSubject
+
+class Emitter: Publisher {
     typealias Output = String
     typealias Failure = Never
-    var subject = SimpleSubject<Output, Failure>()
+    var subject = PassthroughSubject<Output, Failure>()
     
     var timer: Timer?
+
+    func receive<S>(subscriber: S) where S : Subscriber, Failure == S.Failure, Output == S.Input {
+        subject.receive(subscriber: subscriber)
+    }
     
     func start() {
         guard timer == nil else { return }
@@ -15,7 +22,7 @@ class Emitter: SimplePublisher {
     }
     
     private func trigger(_ timer: Timer) {
-        publish(UUID().uuidString)
+        subject.send(UUID().uuidString)
     }
     
     func stop() {
@@ -27,6 +34,36 @@ class Emitter: SimplePublisher {
         stop()
     }
 }
+
+#else // Use SimpleSubject
+
+class Emitter: SimplePublisher {
+    typealias Output = String
+    typealias Failure = Never
+    var subject = SimpleSubject<Output, Failure>()
+
+    var timer: Timer?
+
+    func start() {
+        guard timer == nil else { return }
+        self.timer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: true, block: trigger(_:))
+    }
+
+    private func trigger(_ timer: Timer) {
+        publish(UUID().uuidString)
+    }
+
+    func stop() {
+        timer?.invalidate()
+        self.timer = nil
+    }
+
+    deinit {
+        stop()
+    }
+}
+
+#endif
 
 final class SimplePublisherTests: XCTestCase {
     func testEmitterEmits() {
