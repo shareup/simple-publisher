@@ -3,7 +3,7 @@ import Combine
 import Forever
 @testable import SimplePublisher
 
-#if true // Use PassthroughSubject
+#if false // Use PassthroughSubject
 
 class Emitter: Publisher {
     typealias Output = String
