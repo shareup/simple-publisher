@@ -1,4 +1,10 @@
-# SimplePublisher for Combine
+# SimplePublisher
+
+⚠️⚠️⚠️ **ARCHIVED** ⚠️⚠️⚠️
+
+This repository has been archived because its purpose is best served by using the default [`PassthroughSubject`](https://developer.apple.com/documentation/combine/passthroughsubject).
+
+---
 
 Very quickly give your struct or class the ability to publish out to subscribers by conforming to SimplePublisher.
 
